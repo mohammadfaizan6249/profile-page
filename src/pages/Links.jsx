@@ -55,6 +55,21 @@ const LINKS = [
             </svg>
         ),
     },
+    {
+        id: 'resume',
+        name: 'Resume',
+        description: 'View or download my latest AI/ML and data science resume.',
+        url: '/resume.pdf',
+        accent: '#4ade80',
+        icon: (
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <path d="M12 18v-6" />
+                <path d="m9 15 3 3 3-3" />
+            </svg>
+        ),
+    },
 ];
 
 /* ─── Framer Motion variants ─────────────────────────────────── */
@@ -372,7 +387,7 @@ export default function Links() {
                         margin: '0 0 28px 0',
                     }}
                 >
-                    {LINKS.length} platforms
+                    {LINKS.length} links
                 </motion.p>
 
                 {/* Responsive 2-column grid */}
