@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import PageHero from '../components/PageHero';
 import Footer from '../components/Footer';
@@ -89,6 +90,14 @@ const STYLES = `
     border-left: 1px solid rgba(255,255,255,0.09);
     overflow-y: auto;
     display: flex; flex-direction: column;
+  }
+
+  html[data-theme="light"] .drawer-overlay {
+    background: rgba(245,241,232,0.68);
+  }
+  html[data-theme="light"] .drawer-panel {
+    filter: invert(1) hue-rotate(180deg) saturate(0.94) contrast(0.96);
+    box-shadow: 0 24px 80px rgba(255,255,255,0.18);
   }
 
   /* Scrollbar */
@@ -693,8 +702,7 @@ function DrawerPanel({ item, onClose }) {
     };
   }, [onClose]);
 
-  return (
-    <AnimatePresence>
+  const drawer = (
       <>
         {/* Overlay */}
         <motion.div
@@ -713,6 +721,7 @@ function DrawerPanel({ item, onClose }) {
           animate={{ x: 0 }}
           exit={{ x: '100%' }}
           transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+          onClick={(e) => e.stopPropagation()}
         >
           {/* Panel top bar */}
           <div style={{
@@ -736,7 +745,12 @@ function DrawerPanel({ item, onClose }) {
               }} className={s.group === 'building' ? 'building-pulse' : ''} />
             </div>
             <button
-              onClick={onClose}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onClose();
+              }}
               aria-label="Close panel"
               style={{
                 width: 28, height: 28, borderRadius: '50%',
@@ -968,8 +982,10 @@ function DrawerPanel({ item, onClose }) {
           </div>
         </motion.div>
       </>
-    </AnimatePresence>
   );
+
+  if (typeof document === 'undefined') return drawer;
+  return createPortal(drawer, document.body);
 }
 
 /* ─── Console Log Output ─────────────────────────────────────────── */

@@ -19,6 +19,45 @@ const DEFAULT_FACTS = [
   "I enjoy turning random ideas into real, shipped apps",
   "I like turning rough datasets into clear stories 📖",
   "My tab count is proportional to my curiosity 🤔",
+  "I have said 'just one small fix' and then rebuilt half the feature.",
+  "I trust dashboards more when they have exactly one dramatic chart.",
+  "I can explain a model pipeline faster than I can choose lunch.",
+  "I sometimes open VS Code before I know what I am building.",
+  "My favorite error message is the one that finally makes sense.",
+  "I believe coffee is a valid preprocessing step.",
+  "I name temporary files like they are going to graduate into production.",
+  "I enjoy making buttons feel more expensive than they need to be.",
+  "I have strong opinions about spacing, even when nobody asked.",
+  "I treat messy CSV files like puzzles with emotional damage.",
+  "I can spend 20 minutes improving a hover state and call it research.",
+  "I like when AI tools feel useful, not magical for no reason.",
+  "My browser tabs look like a research paper had a group chat.",
+  "I debug by staring quietly until the bug feels uncomfortable.",
+  "I believe every good project deserves at least one beautiful loading state.",
+  "I have probably said 'this should be easy' right before a three-hour bug.",
+  "I like turning confusing data into something a normal person can actually use.",
+  "I judge dashboards by how quickly they answer the first obvious question.",
+  "I enjoy making small tools that feel like they should already exist.",
+  "My commits start confident and end humble.",
+  "I respect any dataset that arrives clean, but I do not expect it.",
+  "I like systems that explain themselves before they ask for trust.",
+  "I can make a simple card component complicated if the animation is worth it.",
+  "I have a soft spot for dark UI with tiny glowing details.",
+  "I think documentation is just future-me customer support.",
+  "I will always click 'one more preview' before calling a UI done.",
+  "I believe the best AI demos should still be useful when the hype disappears.",
+  "I have learned that 'works locally' is not a deployment strategy.",
+  "I enjoy making technical things feel less intimidating.",
+  "I can turn a random idea into a prototype suspiciously fast.",
+  "I like when data stories have a clean beginning, middle, and chart.",
+  "I sometimes optimize things because the vibes are off.",
+  "I think a good portfolio should feel alive, not like a PDF with buttons.",
+  "I appreciate APIs that return helpful errors. Rare species.",
+  "I believe every AI project needs a human-readable explanation.",
+  "I can spend too long choosing the perfect icon, and I stand by it.",
+  "I like building things that recruiters can understand and engineers can inspect.",
+  "I have a habit of making side projects look like products.",
+  "I consider 'it finally works' a valid emotional milestone.",
 ];
 
 const SNAPSHOT_ITEMS = [
@@ -82,7 +121,7 @@ export default function LifeSnapshotCard() {
         if (!data) return;
         data.forEach(({ key, value }) => {
           if (key === 'life_snapshot' && value) setSnapshot({ ...DEFAULT_SNAPSHOT, ...value });
-          if (key === 'life_facts'    && Array.isArray(value) && value.length) setFacts(value);
+          if (key === 'life_facts'    && Array.isArray(value) && value.length) setFacts([...new Set([...value, ...DEFAULT_FACTS])]);
         });
       });
   }, []);
@@ -105,7 +144,7 @@ export default function LifeSnapshotCard() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
 
       {/* ── Header ── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
@@ -131,7 +170,7 @@ export default function LifeSnapshotCard() {
       </div>
 
       {/* ── Snapshot items — compact inline rows ── */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 7, flex: 1 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 7, flex: currentFact ? '0 0 auto' : 1 }}>
         {SNAPSHOT_ITEMS.map(({ key, emoji, label }) => (
           <div key={key} style={{
             display: 'flex', alignItems: 'center', gap: 10,
@@ -164,31 +203,37 @@ export default function LifeSnapshotCard() {
           transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           style={{
             position: 'relative', marginBottom: 10,
-            padding: '12px 38px 12px 14px',
+            padding: '13px 14px',
             background: 'rgba(168,85,247,0.06)',
             border: '1px solid rgba(168,85,247,0.14)',
             borderRadius: 10,
-            fontSize: 13.8, color: 'rgba(255,255,255,0.75)',
+            fontSize: 'clamp(12.5px, 1.05vw, 13.8px)', color: 'rgba(255,255,255,0.75)',
             lineHeight: 1.55, letterSpacing: '-0.01em',
             minHeight: 48,
+            height: 'auto',
+            overflowWrap: 'anywhere',
+            wordBreak: 'normal',
+            whiteSpace: 'normal',
           }}
         >
-          {displayed}
-          {done && (
-            <span style={{
-              display: 'inline-block', width: 2, height: '1em',
-              background: 'rgba(168,85,247,0.5)', marginLeft: 2,
-              verticalAlign: 'middle', borderRadius: 1,
-            }} />
-          )}
-          {!done && (
-            <span style={{
-              display: 'inline-block', width: 2, height: '1em',
-              background: 'rgba(168,85,247,0.8)', marginLeft: 2,
-              verticalAlign: 'middle', borderRadius: 1,
-              animation: 'ls-blink 0.7s steps(1) infinite',
-            }} />
-          )}
+          <div style={{ paddingRight: done ? 38 : 0 }}>
+            {displayed}
+            {done && (
+              <span style={{
+                display: 'inline-block', width: 2, height: '1em',
+                background: 'rgba(168,85,247,0.5)', marginLeft: 2,
+                verticalAlign: 'middle', borderRadius: 1,
+              }} />
+            )}
+            {!done && (
+              <span style={{
+                display: 'inline-block', width: 2, height: '1em',
+                background: 'rgba(168,85,247,0.8)', marginLeft: 2,
+                verticalAlign: 'middle', borderRadius: 1,
+                animation: 'ls-blink 0.7s steps(1) infinite',
+              }} />
+            )}
+          </div>
 
           {/* Copy button */}
           {done && (

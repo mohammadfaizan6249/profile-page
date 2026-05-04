@@ -378,8 +378,9 @@ function Card({ children, index }) {
                 display: 'flex', flexDirection: 'column',
                 cursor: 'default',
                 transition: 'border-color 0.25s',
-                height: 462,
-                overflow: 'hidden',
+                height: index === 2 ? 'auto' : 462,
+                minHeight: 462,
+                overflow: index === 2 ? 'visible' : 'hidden',
             }}
             onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'}
             onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'}

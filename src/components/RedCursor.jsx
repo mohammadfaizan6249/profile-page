@@ -18,14 +18,14 @@ const styles = `
       position: fixed;
       left: 0;
       top: 0;
-      width: 92px;
-      height: 92px;
-      margin-left: -46px;
-      margin-top: -46px;
+      width: 58px;
+      height: 58px;
+      margin-left: -29px;
+      margin-top: -29px;
       pointer-events: none;
       z-index: 2147483647;
       opacity: 0;
-      transform: translate3d(-120px, -120px, 0) scale(1);
+      transform: translate3d(-120px, -120px, 0) rotate(0deg);
       transition: opacity 0.18s ease, scale 0.18s ease;
       will-change: transform, opacity;
       mix-blend-mode: screen;
@@ -37,63 +37,56 @@ const styles = `
 
     .red-cursor-halo {
       position: absolute;
-      inset: 0;
+      inset: -13px;
       border-radius: 50%;
       background:
-        radial-gradient(circle, rgba(255,42,42,0.18) 0%, rgba(255,42,42,0.08) 38%, rgba(255,42,42,0) 72%),
+        radial-gradient(circle, rgba(255,42,42,0.22) 0%, rgba(255,42,42,0.08) 44%, rgba(255,42,42,0) 72%),
         radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 42%);
-      filter: blur(2px);
+      filter: blur(5px);
     }
 
-    .red-cursor-ring,
-    .red-cursor-ring-soft {
+    .red-cursor-head {
       position: absolute;
-      border-radius: 50%;
-      border: 1px solid rgba(255,60,60,0.46);
+      left: 14px;
+      top: 15px;
+      width: 29px;
+      height: 26px;
+      border-radius: 46% 52% 52% 46%;
+      background:
+        radial-gradient(circle at 76% 31%, rgba(255,255,255,0.36) 0 2px, transparent 2.5px),
+        radial-gradient(circle at 76% 69%, rgba(255,255,255,0.28) 0 2px, transparent 2.5px),
+        linear-gradient(135deg, #ff4a4a 0%, #d30000 44%, #7d0000 100%);
+      clip-path: polygon(100% 50%, 16% 5%, 29% 38%, 2% 50%, 29% 62%, 16% 95%);
       box-shadow:
-        0 0 18px rgba(255,42,42,0.22),
-        inset 0 0 14px rgba(255,42,42,0.08);
+        0 0 14px rgba(255,42,42,0.62),
+        0 0 30px rgba(255,42,42,0.28),
+        inset -7px 0 12px rgba(80,0,0,0.44),
+        inset 5px 0 10px rgba(255,255,255,0.12);
     }
 
-    .red-cursor-ring {
-      inset: 20px;
-      animation: redCursorPulse 1.7s ease-in-out infinite;
-    }
-
-    .red-cursor-ring-soft {
-      inset: 31px;
-      border-color: rgba(255,255,255,0.25);
-      box-shadow:
-        0 0 16px rgba(255,42,42,0.18),
-        inset 0 0 12px rgba(255,255,255,0.06);
-      animation: redCursorPulseSmall 1.7s ease-in-out infinite;
-    }
-
-    .red-cursor-core {
+    .red-cursor-head::before {
+      content: "";
       position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 12px;
-      height: 12px;
+      left: 8px;
+      top: 4px;
+      width: 15px;
+      height: 17px;
       border-radius: 50%;
-      transform: translate(-50%, -50%);
-      background: #ff2424;
-      box-shadow:
-        0 0 10px rgba(255,32,32,0.95),
-        0 0 26px rgba(255,32,32,0.75),
-        0 0 54px rgba(255,32,32,0.32);
+      border-left: 1px solid rgba(255,255,255,0.2);
+      transform: rotate(18deg);
+      opacity: 0.72;
     }
 
     .red-cursor-shine {
       position: absolute;
-      left: 33px;
-      top: 29px;
-      width: 20px;
-      height: 7px;
+      left: 22px;
+      top: 23px;
+      width: 14px;
+      height: 3px;
       border-radius: 999px;
       background: linear-gradient(90deg, rgba(255,255,255,0.56), rgba(255,255,255,0));
       filter: blur(1px);
-      transform: rotate(-24deg);
+      transform: rotate(-12deg);
       opacity: 0.62;
     }
 
@@ -120,28 +113,20 @@ const styles = `
 
     html[data-theme="light"] .red-cursor-halo {
       background:
-        radial-gradient(circle, rgba(118,0,0,0.2) 0%, rgba(150,0,0,0.09) 38%, rgba(150,0,0,0) 72%),
+        radial-gradient(circle, rgba(118,0,0,0.2) 0%, rgba(150,0,0,0.09) 44%, rgba(150,0,0,0) 72%),
         radial-gradient(circle, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 42%);
     }
 
-    html[data-theme="light"] .red-cursor-ring,
-    html[data-theme="light"] .red-cursor-ring-soft {
-      border-color: rgba(120,0,0,0.58);
+    html[data-theme="light"] .red-cursor-head {
+      background:
+        radial-gradient(circle at 76% 31%, rgba(255,255,255,0.34) 0 2px, transparent 2.5px),
+        radial-gradient(circle at 76% 69%, rgba(255,255,255,0.24) 0 2px, transparent 2.5px),
+        linear-gradient(135deg, #a40000 0%, #850000 44%, #4e0000 100%);
       box-shadow:
-        0 0 18px rgba(150,0,0,0.2),
-        inset 0 0 14px rgba(120,0,0,0.1);
-    }
-
-    html[data-theme="light"] .red-cursor-ring-soft {
-      border-color: rgba(70,0,0,0.28);
-    }
-
-    html[data-theme="light"] .red-cursor-core {
-      background: #8f0000;
-      box-shadow:
-        0 0 10px rgba(120,0,0,0.78),
-        0 0 24px rgba(150,0,0,0.46),
-        0 0 46px rgba(120,0,0,0.22);
+        0 0 11px rgba(120,0,0,0.44),
+        0 0 24px rgba(120,0,0,0.18),
+        inset -7px 0 12px rgba(45,0,0,0.48),
+        inset 5px 0 10px rgba(255,255,255,0.08);
     }
 
     html[data-theme="light"] .red-cursor-shine {
@@ -156,15 +141,6 @@ const styles = `
     }
   }
 
-  @keyframes redCursorPulse {
-    0%, 100% { transform: scale(0.94); opacity: 0.46; }
-    50% { transform: scale(1.08); opacity: 0.84; }
-  }
-
-  @keyframes redCursorPulseSmall {
-    0%, 100% { transform: scale(1.08); opacity: 0.32; }
-    50% { transform: scale(0.92); opacity: 0.62; }
-  }
 `;
 
 const TRAIL_COUNT = 14;
@@ -174,6 +150,7 @@ export default function RedCursor() {
     const trailsRef = useRef([]);
     const mouseRef = useRef({ x: -120, y: -120 });
     const cursorPosRef = useRef({ x: -120, y: -120 });
+    const angleRef = useRef(0);
     const trailPosRef = useRef(
         Array.from({ length: TRAIL_COUNT }, () => ({ x: -120, y: -120 }))
     );
@@ -195,11 +172,19 @@ export default function RedCursor() {
         const animate = () => {
             const target = mouseRef.current;
             const pos = cursorPosRef.current;
+            const prevX = pos.x;
+            const prevY = pos.y;
             pos.x += (target.x - pos.x) * 0.24;
             pos.y += (target.y - pos.y) * 0.24;
 
+            const dx = pos.x - prevX;
+            const dy = pos.y - prevY;
+            if (Math.hypot(dx, dy) > 0.18) {
+                angleRef.current = Math.atan2(dy, dx) * (180 / Math.PI);
+            }
+
             if (cursorRef.current) {
-                cursorRef.current.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0)`;
+                cursorRef.current.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0) rotate(${angleRef.current}deg)`;
             }
 
             let followX = pos.x;
@@ -253,10 +238,8 @@ export default function RedCursor() {
                 aria-hidden="true"
             >
                 <div className="red-cursor-halo" />
-                <div className="red-cursor-ring" />
-                <div className="red-cursor-ring-soft" />
+                <div className="red-cursor-head" />
                 <div className="red-cursor-shine" />
-                <div className="red-cursor-core" />
             </div>
         </>
     );

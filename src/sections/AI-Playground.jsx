@@ -17,6 +17,24 @@ const styles = `
   }
   .ai-bobble { animation: aiBobble 5s ease-in-out infinite; }
 
+  .ai-preview-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 22px;
+    outline: none;
+  }
+
+  .ai-preview-link:focus-visible {
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.42);
+  }
+
+  .ai-preview-link:hover .ai-bobble {
+    transform: translateY(-4px);
+    box-shadow: 0 44px 110px rgba(0,0,0,0.76), 0 0 0 1px rgba(99,102,241,0.26);
+  }
+
   .ai-feat-row {
     display: flex;
     align-items: flex-start;
@@ -100,6 +118,11 @@ const FEATURES = [
 /* ─── Static AI Chat Preview ─────────────────────────────────── */
 function ChatPreview() {
     return (
+        <a
+            href="/playground?tool=portfolio-chatbot"
+            className="ai-preview-link"
+            aria-label="Open Portfolio Chatbot About Me in AI Playground"
+        >
         <div
             className="ai-bobble"
             style={{
@@ -252,6 +275,7 @@ function ChatPreview() {
                 </div>
             </div>
         </div>
+        </a>
     );
 }
 

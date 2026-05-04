@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import CommandPalette from './CommandPalette';
@@ -60,6 +61,20 @@ const navbarStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&family=Inter:wght@300;400;500;600&display=swap');
 
   .nav-anim { animation: fadeUpSoft 0.7s ease-out 0s both; }
+
+  .portfolio-nav-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 260;
+    pointer-events: none;
+  }
+
+  .portfolio-nav-layer nav,
+  .portfolio-nav-layer button,
+  .portfolio-nav-layer a,
+  .portfolio-nav-layer .mobile-nav-overlay {
+    pointer-events: auto;
+  }
 
   @keyframes fadeUpSoft {
     0%   { opacity: 0; transform: translateY(24px); }
@@ -314,6 +329,99 @@ function MoreButton() {
     );
 }
 
+function ThemeGlyph({ theme, size = 15 }) {
+    return theme === 'dark' ? (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+    ) : (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+        </svg>
+    );
+}
+
+function SpeakerGlyph({ muted, size = 15 }) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 5 6 9H3v6h3l5 4V5z" />
+            {muted ? (
+                <>
+                    <path d="m19 9-6 6" />
+                    <path d="m13 9 6 6" />
+                </>
+            ) : (
+                <>
+                    <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+                    <path d="M18.5 5.5a9 9 0 0 1 0 13" />
+                </>
+            )}
+        </svg>
+    );
+}
+
+function useBackgroundAudio() {
+    const audioRef = useRef(null);
+    const [muted, setMuted] = useState(() => {
+        if (typeof window === 'undefined') return false;
+        return window.localStorage.getItem('portfolio-audio-muted') === 'true';
+    });
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return undefined;
+
+        const audio = new Audio('/portback.mp3');
+        audio.loop = true;
+        audio.volume = 0.05;
+        audio.muted = muted;
+        audio.preload = 'auto';
+        audioRef.current = audio;
+
+        let started = false;
+        const startAudio = () => {
+            if (started) return;
+            started = true;
+            audio.play().catch(() => {
+                started = false;
+            });
+        };
+
+        startAudio();
+        window.addEventListener('pointerdown', startAudio, { once: true });
+        window.addEventListener('keydown', startAudio, { once: true });
+        window.addEventListener('touchstart', startAudio, { once: true });
+
+        return () => {
+            window.removeEventListener('pointerdown', startAudio);
+            window.removeEventListener('keydown', startAudio);
+            window.removeEventListener('touchstart', startAudio);
+            audio.pause();
+            audioRef.current = null;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            window.localStorage.setItem('portfolio-audio-muted', String(muted));
+        }
+
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        audio.volume = 0.05;
+        audio.muted = muted;
+        if (!muted) {
+            audio.play().catch(() => {});
+        }
+    }, [muted]);
+
+    return {
+        muted,
+        toggle: () => setMuted(current => !current),
+    };
+}
+
 /* ─── Main Navbar ─────────────────────────────────────────── */
 export default function Navbar() {
     const [cmdOpen, setCmdOpen] = useState(false);
@@ -321,6 +429,7 @@ export default function Navbar() {
         if (typeof window === 'undefined') return 'dark';
         return window.localStorage.getItem('portfolio-theme') || 'dark';
     });
+    const { muted: audioMuted, toggle: toggleAudio } = useBackgroundAudio();
     const { scrollY } = useScroll();
     const pillRef = useRef(null);
     const { floodNavigate } = useFloodNavigate();
@@ -399,31 +508,44 @@ export default function Navbar() {
         };
     }, [scrollY, rawPillX]);
 
-    return (
+    const navbarContent = (
         <>
             <style>{navbarStyles}</style>
             <style>{mobileNavStyles}</style>
 
-            {/* ── MOBILE NAV ── */}
-            <MobileNav />
+            <div className="portfolio-nav-layer">
+                {/* ── MOBILE NAV ── */}
+                <MobileNav
+                    theme={theme}
+                    setTheme={setTheme}
+                    audioMuted={audioMuted}
+                    toggleAudio={toggleAudio}
+                />
 
-            <nav
-                className="nav-anim w-full hidden sm:flex items-center px-6 py-5"
-                style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    zIndex: 50,
-                    fontFamily: "'Inter', sans-serif",
-                    background: 'transparent',
-                }}
-            >
+                <nav
+                    className="nav-anim w-full hidden sm:flex items-center px-6 py-5"
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        zIndex: 50,
+                        fontFamily: "'Inter', sans-serif",
+                        background: 'transparent',
+                        pointerEvents: 'auto',
+                    }}
+                >
                 {/* Left — Logo */}
                 <div className="flex items-center gap-2">
                     <span
                         className="text-white font-semibold text-base"
-                        style={{ letterSpacing: '-0.01em', fontFamily: "'Playfair Display', serif", fontStyle: 'italic' }}
+                        style={{
+                            letterSpacing: '-0.01em',
+                            fontFamily: "'Playfair Display', serif",
+                            fontStyle: 'italic',
+                            color: theme === 'dark' ? 'white' : '#171717',
+                            textShadow: theme === 'dark' ? 'none' : '0 1px 0 rgba(255,255,255,0.55), 0 10px 24px rgba(0,0,0,0.12)',
+                        }}
                     >
                         MF
                     </span>
@@ -527,28 +649,42 @@ export default function Navbar() {
                             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
                             title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
                         >
-                            {theme === 'dark' ? (
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                                </svg>
-                            ) : (
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <circle cx="12" cy="12" r="4" />
-                                    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
-                                </svg>
-                            )}
+                            <ThemeGlyph theme={theme} />
+                        </button>
+
+                        {/* Music mute toggle */}
+                        <button
+                            onClick={toggleAudio}
+                            className="flex items-center justify-center rounded-full transition-colors"
+                            style={{
+                                width: '34px',
+                                height: '34px',
+                                flexShrink: 0,
+                                background: audioMuted ? 'rgba(255,70,70,0.13)' : (theme === 'dark' ? '#121212' : 'rgba(255,255,255,0.78)'),
+                                color: audioMuted ? '#ff6b6b' : (theme === 'dark' ? 'white' : '#171717'),
+                                border: audioMuted ? '1px solid rgba(255,80,80,0.3)' : (theme === 'dark' ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.12)'),
+                                boxShadow: theme === 'dark' ? 'none' : '0 8px 24px rgba(0,0,0,0.08)',
+                            }}
+                            aria-label={audioMuted ? 'Unmute background music' : 'Mute background music'}
+                            title={audioMuted ? 'Unmute background music' : 'Mute background music'}
+                        >
+                            <SpeakerGlyph muted={audioMuted} />
                         </button>
 
                     </div>
                 </motion.div>
-            </nav>
-            <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
+                </nav>
+                <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
+            </div>
         </>
     );
+
+    if (typeof document === 'undefined') return navbarContent;
+    return createPortal(navbarContent, document.body);
 }
 
 /* ─── Mobile Navigation Component ───────────────────────────── */
-function MobileNav() {
+function MobileNav({ theme, setTheme, audioMuted, toggleAudio }) {
     const [open, setOpen] = useState(false);
     const { floodNavigate } = useFloodNavigate();
     const { pathname } = useLocation();
@@ -572,6 +708,24 @@ function MobileNav() {
         return () => { document.body.style.overflow = ''; };
     }, [open]);
 
+    const mobileControlStyle = (active = false) => ({
+        width: 40,
+        height: 40,
+        borderRadius: '50%',
+        background: active ? 'rgba(255,70,70,0.14)' : (theme === 'dark' ? 'rgba(10,10,10,0.85)' : 'rgba(255,255,255,0.78)'),
+        color: active ? '#ff6b6b' : (theme === 'dark' ? 'white' : '#171717'),
+        border: active ? '1px solid rgba(255,80,80,0.32)' : (theme === 'dark' ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.12)'),
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
+        boxShadow: theme === 'dark' ? 'none' : '0 8px 24px rgba(0,0,0,0.08)',
+        transition: 'background 0.2s, color 0.2s, border-color 0.2s',
+        outline: 'none',
+    });
+
     return (
         <>
             {/* Mobile top bar */}
@@ -592,58 +746,73 @@ function MobileNav() {
                         fontFamily: "'Playfair Display', serif",
                         fontStyle: 'italic',
                         fontWeight: 600,
-                        color: 'white',
+                        color: theme === 'dark' ? 'white' : '#171717',
                         letterSpacing: '-0.01em',
+                        textShadow: theme === 'dark' ? 'none' : '0 1px 0 rgba(255,255,255,0.55), 0 10px 24px rgba(0,0,0,0.12)',
                     }}
                 >
                     MF
                 </span>
 
-                {/* Hamburger toggle */}
-                <button
-                    onClick={() => setOpen(v => !v)}
-                    aria-label={open ? 'Close menu' : 'Open menu'}
-                    style={{
-                        width: 40, height: 40,
-                        borderRadius: '50%',
-                        background: open ? 'rgba(255,255,255,0.1)' : 'rgba(10,10,10,0.85)',
-                        border: '1px solid rgba(255,255,255,0.12)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        cursor: 'pointer',
-                        backdropFilter: 'blur(14px)',
-                        WebkitBackdropFilter: 'blur(14px)',
-                        flexDirection: 'column',
-                        gap: open ? 0 : 5,
-                        padding: '10px',
-                        transition: 'background 0.2s, gap 0.25s',
-                        outline: 'none',
-                    }}
-                >
-                    <motion.span
-                        animate={open
-                            ? { rotate: 45, y: 4, width: 20 }
-                            : { rotate: 0,  y: 0, width: 18 }
-                        }
-                        transition={{ duration: 0.25 }}
-                        style={{ display: 'block', height: 1.5, background: 'white', borderRadius: 2, transformOrigin: 'center' }}
-                    />
-                    <motion.span
-                        animate={open
-                            ? { opacity: 0, scaleX: 0 }
-                            : { opacity: 1, scaleX: 1 }
-                        }
-                        transition={{ duration: 0.18 }}
-                        style={{ display: 'block', height: 1.5, background: 'white', borderRadius: 2, width: 20 }}
-                    />
-                    <motion.span
-                        animate={open
-                            ? { rotate: -45, y: -4, width: 20 }
-                            : { rotate: 0,  y: 0,  width: 14 }
-                        }
-                        transition={{ duration: 0.25 }}
-                        style={{ display: 'block', height: 1.5, background: 'white', borderRadius: 2, transformOrigin: 'center' }}
-                    />
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <button
+                        onClick={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')}
+                        aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+                        title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+                        style={mobileControlStyle()}
+                    >
+                        <ThemeGlyph theme={theme} size={16} />
+                    </button>
+
+                    <button
+                        onClick={toggleAudio}
+                        aria-label={audioMuted ? 'Unmute background music' : 'Mute background music'}
+                        title={audioMuted ? 'Unmute background music' : 'Mute background music'}
+                        style={mobileControlStyle(audioMuted)}
+                    >
+                        <SpeakerGlyph muted={audioMuted} size={16} />
+                    </button>
+
+                    {/* Hamburger toggle */}
+                    <button
+                        onClick={() => setOpen(v => !v)}
+                        aria-label={open ? 'Close menu' : 'Open menu'}
+                        style={{
+                            ...mobileControlStyle(false),
+                            background: open ? 'rgba(255,255,255,0.1)' : mobileControlStyle(false).background,
+                            color: 'white',
+                            flexDirection: 'column',
+                            gap: open ? 0 : 5,
+                            padding: '10px',
+                            transition: 'background 0.2s, gap 0.25s',
+                        }}
+                    >
+                        <motion.span
+                            animate={open
+                                ? { rotate: 45, y: 4, width: 20 }
+                                : { rotate: 0,  y: 0, width: 18 }
+                            }
+                            transition={{ duration: 0.25 }}
+                            style={{ display: 'block', height: 1.5, background: 'currentColor', borderRadius: 2, transformOrigin: 'center' }}
+                        />
+                        <motion.span
+                            animate={open
+                                ? { opacity: 0, scaleX: 0 }
+                                : { opacity: 1, scaleX: 1 }
+                            }
+                            transition={{ duration: 0.18 }}
+                            style={{ display: 'block', height: 1.5, background: 'currentColor', borderRadius: 2, width: 20 }}
+                        />
+                        <motion.span
+                            animate={open
+                                ? { rotate: -45, y: -4, width: 20 }
+                                : { rotate: 0,  y: 0,  width: 14 }
+                            }
+                            transition={{ duration: 0.25 }}
+                            style={{ display: 'block', height: 1.5, background: 'currentColor', borderRadius: 2, transformOrigin: 'center' }}
+                        />
+                    </button>
+                </div>
             </div>
 
             {/* Full-screen drawer */}

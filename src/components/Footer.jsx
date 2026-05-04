@@ -17,9 +17,231 @@ const footerStyles = `
     0%, 100% { transform: translateY(0px) rotate(0deg); }
     50%       { transform: translateY(-12px) rotate(180deg); }
   }
+  @keyframes contactOrbFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%      { transform: translateY(-10px) scale(1.015); }
+  }
+  @keyframes contactOrbSpin {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes contactOrbReverse {
+    0%   { transform: rotate(360deg); }
+    100% { transform: rotate(0deg); }
+  }
+  @keyframes contactOrbPulse {
+    0%, 100% { opacity: 0.55; transform: scale(0.98); }
+    50%      { opacity: 1; transform: scale(1.04); }
+  }
+  @keyframes contactOrbScan {
+    0%   { transform: translateY(-110%); opacity: 0; }
+    18%  { opacity: 0.7; }
+    80%  { opacity: 0.12; }
+    100% { transform: translateY(110%); opacity: 0; }
+  }
 
   .footer-ring {
     animation: footerRingFloat 6s ease-in-out infinite;
+  }
+
+  .footer-contact-orb-wrap {
+    position: relative;
+    flex-shrink: 0;
+    width: clamp(190px, 19vw, 248px);
+    aspect-ratio: 1;
+    display: block;
+    text-decoration: none;
+    color: white;
+    animation: contactOrbFloat 7s ease-in-out infinite;
+  }
+
+  .footer-contact-orb-wrap::before {
+    content: "";
+    position: absolute;
+    inset: -22%;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 42% 38%, rgba(255, 71, 87, 0.34), transparent 34%),
+      radial-gradient(circle at 64% 66%, rgba(34, 211, 238, 0.2), transparent 42%),
+      radial-gradient(circle, rgba(255, 255, 255, 0.12), transparent 62%);
+    filter: blur(22px);
+    opacity: 0.86;
+    pointer-events: none;
+  }
+
+  .footer-contact-orb {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    isolation: isolate;
+    background:
+      radial-gradient(circle at 33% 28%, rgba(255,255,255,0.32), transparent 17%),
+      radial-gradient(circle at 56% 48%, rgba(255, 71, 87, 0.24), transparent 38%),
+      radial-gradient(circle at 72% 70%, rgba(34, 211, 238, 0.16), transparent 42%),
+      linear-gradient(145deg, #171717 0%, #050505 54%, #0d0d0f 100%);
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.24),
+      inset 0 -22px 44px rgba(0,0,0,0.62),
+      0 24px 80px rgba(255, 43, 67, 0.18),
+      0 10px 34px rgba(0,0,0,0.56);
+    transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+  }
+
+  .footer-contact-orb-wrap:hover .footer-contact-orb {
+    transform: scale(1.035);
+    border-color: rgba(255,255,255,0.34);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.3),
+      inset 0 -22px 44px rgba(0,0,0,0.58),
+      0 32px 96px rgba(255, 43, 67, 0.3),
+      0 16px 42px rgba(0,0,0,0.64);
+  }
+
+  .footer-contact-orb-grid,
+  .footer-contact-orb-rings,
+  .footer-contact-orb-scan,
+  .footer-contact-orb-noise {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .footer-contact-orb-grid {
+    background:
+      linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.18;
+    transform: rotate(-12deg) scale(1.3);
+  }
+
+  .footer-contact-orb-rings {
+    inset: 12px;
+    border: 1px solid rgba(255,255,255,0.16);
+    box-shadow:
+      inset 0 0 0 28px rgba(255,255,255,0.018),
+      inset 0 0 0 54px rgba(255,255,255,0.012);
+    animation: contactOrbPulse 4.8s ease-in-out infinite;
+  }
+
+  .footer-contact-orb-rings::before,
+  .footer-contact-orb-rings::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 1px dashed rgba(255,255,255,0.18);
+    animation: contactOrbSpin 18s linear infinite;
+  }
+
+  .footer-contact-orb-rings::after {
+    inset: 24px;
+    border-color: rgba(255, 71, 87, 0.36);
+    animation: contactOrbReverse 13s linear infinite;
+  }
+
+  .footer-contact-orb-scan {
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,0.24), transparent);
+    height: 40%;
+    top: 30%;
+    animation: contactOrbScan 5.6s ease-in-out infinite;
+    mix-blend-mode: screen;
+  }
+
+  .footer-contact-orb-noise {
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,0.18) 0 1px, transparent 1px),
+      radial-gradient(circle at 70% 58%, rgba(255,255,255,0.12) 0 1px, transparent 1px),
+      radial-gradient(circle at 45% 80%, rgba(255,71,87,0.18) 0 1px, transparent 1px);
+    background-size: 34px 34px, 42px 42px, 52px 52px;
+    opacity: 0.42;
+  }
+
+  .footer-contact-orb-core {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: 62%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 2;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .footer-contact-orb-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.72);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .footer-contact-orb-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 12px rgba(74,222,128,0.9);
+  }
+
+  .footer-contact-orb-title {
+    display: block;
+    color: white;
+    font-size: clamp(18px, 1.75vw, 25px);
+    line-height: 1;
+    letter-spacing: -0.055em;
+    font-weight: 900;
+    margin-bottom: 10px;
+  }
+
+  .footer-contact-orb-sub {
+    display: block;
+    color: rgba(255,255,255,0.52);
+    font-size: 10.5px;
+    line-height: 1.35;
+    font-weight: 600;
+  }
+
+  .footer-contact-orb-chip {
+    position: absolute;
+    z-index: 3;
+    padding: 5px 9px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(10,10,10,0.58);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: rgba(255,255,255,0.76);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+
+  .footer-contact-orb-chip.one { top: 11%; left: 12%; }
+  .footer-contact-orb-chip.two { right: 2%; top: 42%; color: #ff7a88; }
+  .footer-contact-orb-chip.three { left: 7%; bottom: 19%; color: #67e8f9; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .footer-contact-orb-wrap,
+    .footer-contact-orb-rings,
+    .footer-contact-orb-rings::before,
+    .footer-contact-orb-rings::after,
+    .footer-contact-orb-scan {
+      animation: none !important;
+    }
   }
 
   .footer-link {
@@ -148,43 +370,33 @@ const ResumeIcon = () => (
     </svg>
 );
 
-/* ─── Glowing Ring (right-side decoration) ─────────────────────── */
-function GlowingRing() {
+/* ─── Animated Contact Orb (right-side CTA) ─────────────────────── */
+function ContactOrb() {
     return (
-        <div
-            className="footer-ring-wrap"
-            style={{
-                flexShrink: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}
+        <a
+            className="footer-contact-orb-wrap footer-ring-wrap"
+            href="mailto:email.mdfaizan@gmail.com?subject=AI%20Project%20Idea&body=Hi%20Faizan%2C%0A%0AI%20want%20to%20discuss%20an%20AI%2FML%20project%20idea%20with%20you.%0A%0AProject%20idea%3A%0A%0AGoal%3A%0A%0ATimeline%3A%0A%0AThanks%2C"
+            aria-label="Email Mohammad Faizan about an AI or ML project"
         >
-            <div
-                className="footer-ring"
-                style={{
-                    width: 178,
-                    height: 178,
-                    borderRadius: '50%',
-                    border: '2.5px solid transparent',
-                    backgroundImage: 'linear-gradient(135deg, #6366f1, #a855f7, #6366f1)',
-                    backgroundOrigin: 'border-box',
-                    WebkitMask: 'linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)',
-                    WebkitMaskComposite: 'destination-out',
-                    maskComposite: 'exclude',
-                    boxShadow: '0 0 48px 10px rgba(99,102,241,0.4), 0 0 90px 20px rgba(168,85,247,0.2)',
-                    position: 'relative',
-                }}
-            >
-                {/* Inner subtle glow fill */}
-                <div style={{
-                    position: 'absolute',
-                    inset: 8,
-                    borderRadius: '50%',
-                    background: 'radial-gradient(circle at 40% 40%, rgba(99,102,241,0.12) 0%, rgba(168,85,247,0.08) 60%, transparent 100%)',
-                }} />
+            <div className="footer-contact-orb">
+                <div className="footer-contact-orb-grid" />
+                <div className="footer-contact-orb-rings" />
+                <div className="footer-contact-orb-scan" />
+                <div className="footer-contact-orb-noise" />
+
+                <span className="footer-contact-orb-chip one">MLOps</span>
+                <span className="footer-contact-orb-chip two">RAG</span>
+                <span className="footer-contact-orb-chip three">XAI</span>
+
+                <div className="footer-contact-orb-core">
+                    <span className="footer-contact-orb-status">
+                        <span className="footer-contact-orb-dot" />
+                        Available
+                    </span>
+                    <span className="footer-contact-orb-title">Start an AI project with me</span>
+                </div>
             </div>
-        </div>
+        </a>
     );
 }
 
@@ -380,8 +592,8 @@ export default function Footer() {
                             </p>
                         </div>
 
-                        {/* Right — Glowing Ring */}
-                        <GlowingRing />
+                        {/* Right — Animated Contact Orb */}
+                        <ContactOrb />
                     </motion.div>
 
                     {/* ══════════════════════════════════════════

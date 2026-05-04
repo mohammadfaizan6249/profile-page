@@ -15,6 +15,7 @@ import SmoothScroll from './components/SmoothScroll';
 import Navbar from './components/Navbar';
 import ParticleBackground from './components/ParticleBackground';
 import RedCursor from './components/RedCursor';
+import DesktopExperienceNotice from './components/DesktopExperienceNotice';
 import { FloodTransitionProvider, PageTransition } from './components/PageTransition';
 
 function HashScroller() {
@@ -43,6 +44,7 @@ function App() {
           <HashScroller />
           <ParticleBackground />
           <RedCursor />
+          <DesktopExperienceNotice />
           <Navbar />
 
           <Routes>

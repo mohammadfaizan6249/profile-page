@@ -122,6 +122,9 @@ function countryTarget(lat, lng) {
 ═══════════════════════════════════════════════════════════ */
 function DraggableGlobe({ size = 240, activeCountry = "IN" }) {
   const canvasRef = useRef(null);
+  const [isLightTheme, setIsLightTheme] = useState(() => (
+    typeof document !== "undefined" && document.documentElement.dataset.theme === "light"
+  ));
 
   /* All mutable state in a single ref – no re-renders during RAF */
   const S = useRef({
@@ -149,6 +152,16 @@ function DraggableGlobe({ size = 240, activeCountry = "IN" }) {
     s.targetRotY = s.rotY + dY;
     s.targetRotX = t.rotX;
   }, [activeCountry]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return undefined;
+    const updateTheme = () => setIsLightTheme(document.documentElement.dataset.theme === "light");
+    updateTheme();
+
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -191,17 +204,26 @@ function DraggableGlobe({ size = 240, activeCountry = "IN" }) {
 
       /* ── Atmosphere limb glow (right-side bright as in ref) ── */
       const atm = ctx.createRadialGradient(cx + R * 0.1, cy - R * 0.1, R * 0.6, cx, cy, R * 1.18);
-      atm.addColorStop(0, "rgba(255,255,255,0.00)");
-      atm.addColorStop(0.65, "rgba(255,255,255,0.03)");
-      atm.addColorStop(0.88, "rgba(255,255,255,0.12)");
-      atm.addColorStop(1, "rgba(255,255,255,0.22)");
+      atm.addColorStop(0, isLightTheme ? "rgba(255,255,255,0.00)" : "rgba(255,255,255,0.00)");
+      atm.addColorStop(0.65, isLightTheme ? "rgba(0,0,0,0.02)" : "rgba(255,255,255,0.03)");
+      atm.addColorStop(0.88, isLightTheme ? "rgba(0,0,0,0.10)" : "rgba(255,255,255,0.12)");
+      atm.addColorStop(1, isLightTheme ? "rgba(0,0,0,0.18)" : "rgba(255,255,255,0.22)");
       ctx.fillStyle = atm;
       ctx.beginPath(); ctx.arc(cx, cy, R * 1.18, 0, PI * 2); ctx.fill();
 
       /* ── Ocean sphere ── */
       ctx.beginPath(); ctx.arc(cx, cy, R, 0, PI * 2);
-      ctx.fillStyle = "rgba(8,8,10,0.97)";
+      ctx.fillStyle = isLightTheme ? "rgba(255,255,255,0.96)" : "rgba(8,8,10,0.97)";
       ctx.fill();
+
+      if (isLightTheme) {
+        const shade = ctx.createRadialGradient(cx - R * 0.28, cy - R * 0.22, R * 0.1, cx, cy, R);
+        shade.addColorStop(0, "rgba(255,255,255,0.92)");
+        shade.addColorStop(0.62, "rgba(255,255,255,0.24)");
+        shade.addColorStop(1, "rgba(0,0,0,0.08)");
+        ctx.fillStyle = shade;
+        ctx.beginPath(); ctx.arc(cx, cy, R, 0, PI * 2); ctx.fill();
+      }
 
       /* ── Land dots — fine 2.5° grid, tiny dots ── */
       const STEP = 2.5;
@@ -235,7 +257,9 @@ function DraggableGlobe({ size = 240, activeCountry = "IN" }) {
 
           ctx.beginPath();
           ctx.arc(cx + x1, cy - y1, dotR, 0, PI * 2);
-          ctx.fillStyle = `rgba(255,255,255,${bright.toFixed(3)})`;
+          ctx.fillStyle = isLightTheme
+            ? `rgba(0,0,0,${Math.min(0.74, bright * 0.95).toFixed(3)})`
+            : `rgba(255,255,255,${bright.toFixed(3)})`;
           ctx.fill();
         }
       }
@@ -258,22 +282,22 @@ function DraggableGlobe({ size = 240, activeCountry = "IN" }) {
 
           /* Large soft glow ring */
           const g2 = ctx.createRadialGradient(px, py, 0, px, py, 22);
-          g2.addColorStop(0, "rgba(255,255,255,0.55)");
-          g2.addColorStop(0.35, "rgba(255,255,255,0.18)");
-          g2.addColorStop(0.7, "rgba(255,255,255,0.05)");
+          g2.addColorStop(0, isLightTheme ? "rgba(0,0,0,0.34)" : "rgba(255,255,255,0.55)");
+          g2.addColorStop(0.35, isLightTheme ? "rgba(0,0,0,0.13)" : "rgba(255,255,255,0.18)");
+          g2.addColorStop(0.7, isLightTheme ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.05)");
           g2.addColorStop(1, "transparent");
           ctx.fillStyle = g2;
           ctx.beginPath(); ctx.arc(px, py, 22, 0, PI * 2); ctx.fill();
 
-          /* Solid bright white center dot */
+          /* Solid center dot */
           ctx.beginPath(); ctx.arc(px, py, 6, 0, PI * 2);
-          ctx.fillStyle = "white"; ctx.fill();
+          ctx.fillStyle = isLightTheme ? "rgba(0,0,0,0.72)" : "white"; ctx.fill();
 
-          /* Inner dark ring for contrast */
+          /* Inner ring for contrast */
           ctx.beginPath(); ctx.arc(px, py, 3.5, 0, PI * 2);
-          ctx.fillStyle = "rgba(0,0,0,0.35)"; ctx.fill();
+          ctx.fillStyle = isLightTheme ? "rgba(255,255,255,0.72)" : "rgba(0,0,0,0.35)"; ctx.fill();
           ctx.beginPath(); ctx.arc(px, py, 2.5, 0, PI * 2);
-          ctx.fillStyle = "white"; ctx.fill();
+          ctx.fillStyle = isLightTheme ? "rgba(0,0,0,0.72)" : "white"; ctx.fill();
         }
       }
 
@@ -325,7 +349,7 @@ function DraggableGlobe({ size = 240, activeCountry = "IN" }) {
       canvas.removeEventListener("touchmove", onTM);
       canvas.removeEventListener("touchend", end);
     };
-  }, [activeCountry]); // re-bind so activeCountry closure is fresh for markers
+  }, [activeCountry, isLightTheme]); // re-bind so activeCountry/theme closure is fresh for markers
 
   return (
     <canvas
@@ -356,9 +380,9 @@ function SceneContent({ scene }) {
 
 const ARC_R = 420, PIVOT_FROM_TOP = 520, CARD_W = 140, CARD_H = 210, AREA_H = 260;
 const ARC_R_M = 260, PIVOT_FROM_TOP_M = 320, CARD_W_M = 90, CARD_H_M = 135, AREA_H_M = 160;
-const IMAGE_LIST = ["image1", "image2", "image3", "image4", "image5", "image6", "image7", "image8", "image9", "image10"];
-const ARC_CARDS_DATA = [...IMAGE_LIST, ...IMAGE_LIST, ...IMAGE_LIST].map(
-  (scene, i) => ({ baseAngle: (i - IMAGE_LIST.length) * 28, scene })
+const IMAGE_LIST = ["image1", "image2", "image3", "image4", "image6", "image7", "image8", "image9", "image10"];
+const ARC_CARDS_DATA = IMAGE_LIST.map(
+  (scene, i) => ({ baseAngle: (i - (IMAGE_LIST.length - 1) / 2) * 24, scene })
 );
 
 function ArcPhotoCard({ baseAngle, scene, rotation, mobile = false }) {
@@ -389,22 +413,36 @@ function ArcPhotoCard({ baseAngle, scene, rotation, mobile = false }) {
 }
 
 function PhotoCardsGroup({ mobile = false }) {
-  const { scrollY } = useScroll();
-  const scrollRot = useTransform(scrollY, [0, 2000], [0, -120]);
-  const smooth = useSpring(scrollRot, { stiffness: 60, damping: 20 });
-  const drag = useMotionValue(0);
-  const dragSpring = useSpring(drag, { stiffness: 120, damping: 18 });
-  const rotation = useTransform([smooth, dragSpring], ([s, d]) => s + d);
+  const [activePhoto, setActivePhoto] = useState(Math.floor(ARC_CARDS_DATA.length / 2));
+  const rotationBase = useMotionValue(-ARC_CARDS_DATA[Math.floor(ARC_CARDS_DATA.length / 2)].baseAngle);
+  const rotation = useSpring(rotationBase, { stiffness: 56, damping: 18, mass: 0.8 });
   const areaH = mobile ? AREA_H_M : AREA_H;
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setActivePhoto(current => (current + 1) % ARC_CARDS_DATA.length);
+    }, 2000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    rotationBase.set(-ARC_CARDS_DATA[activePhoto].baseAngle);
+  }, [activePhoto, rotationBase]);
+
   return (
-    <motion.div drag="x" dragMomentum dragElastic={0.25}
-      dragConstraints={{ left: 0, right: 0 }}
-      onDrag={(_, info) => drag.set(drag.get() + info.delta.x * 0.25)}
-      style={{ position: "relative", height: areaH, overflow: "visible", cursor: "grab" }}>
+    <div
+      style={{
+        position: "relative",
+        height: areaH,
+        overflow: "visible",
+        pointerEvents: "none",
+        willChange: "transform",
+        contain: "layout paint",
+      }}>
       {ARC_CARDS_DATA.map((c, i) => (
         <ArcPhotoCard key={i} baseAngle={c.baseAngle} scene={c.scene} rotation={rotation} mobile={mobile} />
       ))}
-    </motion.div>
+    </div>
   );
 }
 
@@ -492,14 +530,14 @@ function PhoneMockupsGroup() {
 
   return (
     <div style={{
-      position: "absolute", bottom: -30, left: "50%",
+      position: "absolute", bottom: isMobile ? 6 : -104, left: "50%",
       transform: "translateX(-50%)", width: "100%",
       display: "flex", alignItems: "flex-end", justifyContent: "center",
       zIndex: 5
     }}>
       {/* On mobile: only center phone. On desktop: all three */}
       {!isMobile && <PhoneLanding rotate={sLeftRot} x={-148} y={sLeftY} zIndex={1} delay={0.10} />}
-      <PhoneDashboard rotate={sCenterRot} x={isMobile ? 0 : 0} y={sCenterY} zIndex={3} delay={0.20} />
+      <PhoneDashboard rotate={sCenterRot} x={0} y={isMobile ? 0 : sCenterY} zIndex={3} delay={0.20} compact={isMobile} />
       {!isMobile && <PhonePortfolio rotate={sRightRot} x={152} y={sRightY} zIndex={2} delay={0.30} />}
     </div>
   );
@@ -665,9 +703,9 @@ function PhoneLanding({ rotate, x, y, zIndex, delay }) {
 /* ─────────────────────────────────────────────────────────
    PHONE 2 – Dashboard  (center, slightly larger)
 ───────────────────────────────────────────────────────── */
-function PhoneDashboard({ rotate, x, y, zIndex, delay }) {
+function PhoneDashboard({ rotate, x, y, zIndex, delay, compact = false }) {
   return (
-    <PhoneShell rotate={rotate} x={x} y={y} zIndex={zIndex} delay={delay} scale={1.28} time="9:41">
+    <PhoneShell rotate={rotate} x={x} y={y} zIndex={zIndex} delay={delay} scale={compact ? 1.03 : 1.28} time="9:41">
       {/* Greeting */}
       <div style={{ marginBottom: 6 }}>
         <div style={{ fontSize: 13, fontWeight: 800, color: "white", letterSpacing: "-0.02em" }}>Hi, Faizan</div>
@@ -820,14 +858,15 @@ const TAB_CONTENT = {
    TIMEZONE CHIP
 ═══════════════════════════════════════════════════════════ */
 const TZ_CHIPS = [
-  { code: "GB", name: "UK", active: false },
-  { code: "IN", name: "India", active: false },
-  { code: "US", name: "USA", active: true },
+  { code: "GB", name: "UK", city: "London", timeZone: "Europe/London" },
+  { code: "IN", name: "India", city: "Bengaluru", timeZone: "Asia/Kolkata" },
+  { code: "US", name: "USA", city: "Tucson", timeZone: "America/Phoenix" },
 ];
 
 function TzChip({ code, name, isActive, onClick }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       style={{
         display: "flex", alignItems: "center", gap: 12,
@@ -872,7 +911,14 @@ const About = () => {
     return () => clearInterval(id);
   }, []);
 
-  const timeStr = time.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+  const localTimeStr = time.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+  const activeTz = TZ_CHIPS.find(c => c.code === activeCountry) || TZ_CHIPS[2];
+  const activeTimeStr = time.toLocaleTimeString("en-US", {
+    timeZone: activeTz.timeZone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
 
   const copyEmail = async () => {
     try { await navigator.clipboard.writeText(email); } catch (_) { }
@@ -920,7 +966,7 @@ const About = () => {
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                   <circle cx="12" cy="10" r="3" />
                 </svg>
-                Tucson, AZ • {timeStr}</p>
+                Tucson, AZ • {localTimeStr}</p>
             </div>
             {/* Smaller arc wheel on mobile */}
             <div className="hidden sm:block"><PhotoCardsGroup /></div>
@@ -1008,8 +1054,8 @@ const About = () => {
             </div>
             {/* Black cutout disc + Clock — DESKTOP ONLY */}
             <div className="hidden sm:block absolute left-1/2 -translate-x-1/2 bottom-[-255px]
-              w-[450px] h-[450px] rounded-full bg-black z-20" />
-            <div className="hidden sm:block absolute left-1/2 -translate-x-1/2 bottom-[-225px] z-30">
+              w-[450px] h-[450px] rounded-full bg-black z-20 pointer-events-none" />
+            <div className="hidden sm:block absolute left-1/2 -translate-x-1/2 bottom-[-225px] z-30 pointer-events-none">
               <AnalogClock />
             </div>
           </div>
@@ -1108,7 +1154,7 @@ const About = () => {
 
             {/* Chips — right side, below text on mobile */}
             <div className="hidden sm:flex" style={{
-              position: "absolute", right: 7, top: 180, zIndex: 10,
+              position: "absolute", left: 28, top: 172, zIndex: 10,
               flexDirection: 'column', gap: 3,
             }}>
               {TZ_CHIPS.map(({ code, name }) => (
@@ -1124,38 +1170,48 @@ const About = () => {
 
             {/* Mobile TZ chips — simple row below text */}
             <div className="flex sm:hidden" style={{
-              position: "absolute", top: 90, left: 16, right: 16,
-              zIndex: 10, gap: 6, flexWrap: 'wrap',
+              position: "absolute", top: 150, left: 20,
+              zIndex: 20, gap: 6, flexDirection: 'column',
             }}>
               {TZ_CHIPS.map(({ code, name }) => (
                 <button
+                  type="button"
                   key={code}
                   onClick={() => setActiveCountry(code)}
                   style={{
-                    padding: '6px 12px', borderRadius: 999, fontSize: 12,
+                    width: 150,
+                    padding: '8px 14px',
+                    borderRadius: 999,
+                    fontSize: 12,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
                     background: activeCountry === code ? 'rgba(135,82,8,0.48)' : 'rgba(255,255,255,0.06)',
                     border: activeCountry === code ? '1px solid rgba(196,130,28,0.6)' : '1px solid rgba(255,255,255,0.1)',
                     color: activeCountry === code ? 'rgba(245,185,55,0.95)' : 'rgba(255,255,255,0.5)',
                     cursor: 'pointer',
                   }}
                 >
-                  {code} {name}
+                  <span style={{ fontWeight: 800, letterSpacing: '0.04em' }}>{code}</span>
+                  <span style={{ color: activeCountry === code ? 'white' : 'rgba(255,255,255,0.72)' }}>{name}</span>
                 </button>
               ))}
             </div>
 
             {/* Country label — bottom-right */}
             <div className="absolute bottom-6 right-7 z-10 text-right">
-              <p className="text-white font-bold text-[18px] leading-tight">
-                {TZ_CHIPS.find(c => c.code === activeCountry)?.name}
+              <p className="text-white font-bold text-[18px] leading-tight mb-1">
+                {activeTz.name}
+              </p>
+              <p className="text-[11px] uppercase tracking-[0.18em] text-white/35 font-semibold">
+                {activeTz.city} • {activeTimeStr}
               </p>
             </div>
           </div>
 
           {/* ── BOTTOM RIGHT: AI/ML systems preview ── */}
-          <div className={`${cardBase} relative overflow-hidden`}
+          <div className={`${cardBase} relative overflow-hidden min-h-[465px] sm:min-h-[430px]`}
             style={{
-              minHeight: 380,
               background: "#080808",
               borderColor: "rgba(255,255,255,0.08)"
             }}>
@@ -1170,14 +1226,17 @@ const About = () => {
             }} />
 
             {/* Title pinned top-right (mirrors Rune card in reference) */}
-            <div style={{ position: "absolute", top: 28, right: 28, zIndex: 10, textAlign: "right" }}>
+            <div
+              className="absolute top-6 left-6 right-6 text-left sm:top-7 sm:left-auto sm:right-7 sm:text-right"
+              style={{ zIndex: 10 }}
+            >
               <div style={{ lineHeight: 1.1, marginBottom: 5 }}>
                 <span style={{
-                  fontSize: 24, fontWeight: 800, color: "white",
+                  fontSize: "clamp(21px, 6vw, 24px)", fontWeight: 800, color: "white",
                   fontFamily: "'Inter',sans-serif"
                 }}>Builder of </span>
                 <span style={{
-                  fontSize: 24, fontWeight: 800,
+                  fontSize: "clamp(21px, 6vw, 24px)", fontWeight: 800,
                   fontFamily: "'Playfair Display',serif", fontStyle: "italic",
                   background: "linear-gradient(115deg,#e84c1e 0%,#ff7a3d 42%,#ff5fa0 100%)",
                   WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
@@ -1185,7 +1244,8 @@ const About = () => {
               </div>
               <p style={{
                 fontSize: 12, color: "rgba(255,255,255,0.32)",
-                fontFamily: "'Playfair Display',serif", fontStyle: "italic"
+                fontFamily: "'Playfair Display',serif", fontStyle: "italic",
+                maxWidth: 310,
               }}>
                 {"< Turning data, models, and agents into usable products />"}
               </p>
