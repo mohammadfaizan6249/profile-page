@@ -422,7 +422,7 @@ function TextToolPanel({
 }
 
 export default function Playground() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const requestedTool = searchParams.get('tool');
   const getValidTool = (toolId) => TOOLS.some((tool) => tool.id === toolId) ? toolId : 'portfolio-chatbot';
   const [activeToolId, setActiveToolId] = useState(() => getValidTool(requestedTool));
@@ -458,6 +458,7 @@ export default function Playground() {
   const activeTool = useMemo(() => TOOLS.find((tool) => tool.id === activeToolId), [activeToolId]);
 
   useEffect(() => {
+    if (!requestedTool) return;
     const nextTool = getValidTool(requestedTool);
     if (nextTool !== activeToolId) {
       setActiveToolId(nextTool);
@@ -465,6 +466,13 @@ export default function Playground() {
       setCopied(false);
     }
   }, [activeToolId, requestedTool]);
+
+  const selectTool = (toolId) => {
+    setActiveToolId(toolId);
+    setError('');
+    setCopied(false);
+    setSearchParams(toolId === 'portfolio-chatbot' ? {} : { tool: toolId }, { replace: true });
+  };
 
   const callAi = async (payload) => {
     setLoading(true);
@@ -642,11 +650,7 @@ export default function Playground() {
                 <button
                   key={item.id}
                   className="playground-card"
-                  onClick={() => {
-                    setActiveToolId(item.id);
-                    setError('');
-                    setCopied(false);
-                  }}
+                  onClick={() => selectTool(item.id)}
                   style={{
                     textAlign: 'left',
                     padding: '18px 20px',
