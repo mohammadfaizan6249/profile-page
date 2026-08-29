@@ -7,6 +7,7 @@ import About from './pages/About';
 import Work from './pages/Work';
 import Blogs from './pages/Blogs';
 import BlogDetail from './pages/BlogDetail';
+import Research from './pages/Research';
 import Links from './pages/Links';
 import Labs from './pages/Labs';
 import Playground from './pages/Playground';
@@ -53,6 +54,7 @@ function App() {
             <Route path="/work" element={<PageTransition><Work /></PageTransition>} />
             <Route path="/blogs" element={<PageTransition><Blogs /></PageTransition>} />
             <Route path="/blog/:slug" element={<PageTransition><BlogDetail /></PageTransition>} />
+            <Route path="/research" element={<PageTransition><Research /></PageTransition>} />
             <Route path="/links" element={<PageTransition><Links /></PageTransition>} />
             <Route path="/labs" element={<PageTransition><Labs /></PageTransition>} />
             <Route path="/playground" element={<PageTransition><Playground /></PageTransition>} />

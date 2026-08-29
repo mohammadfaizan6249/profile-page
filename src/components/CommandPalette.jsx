@@ -39,6 +39,15 @@ const COMMANDS = [
                     </svg>
                 ),
             },
+            {
+                id: 'research', label: 'Research', sub: 'Explore my AI research focus', href: '/research',
+                icon: (
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 3 4 7v10l8 4 8-4V7l-8-4Z" />
+                        <path d="M12 3v18M4 7l8 4 8-4" />
+                    </svg>
+                ),
+            },
         ],
     },
     /* Links */

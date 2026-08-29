@@ -523,7 +523,7 @@ export default function Navbar() {
                 />
 
                 <nav
-                    className="nav-anim w-full hidden sm:flex items-center px-6 py-5"
+                    className="nav-anim w-full hidden lg:flex items-center px-6 py-5"
                     style={{
                         position: 'absolute',
                         top: 0,
@@ -597,6 +597,7 @@ export default function Navbar() {
                         <NavLink label="About" active={pathname === '/about'} onClick={(e) => floodNavigate('/about', e)} />
                         <NavLink label="Work" active={pathname === '/work'} onClick={(e) => floodNavigate('/work', e)} />
                         <NavLink label="Blogs" active={pathname === '/blogs'} onClick={(e) => floodNavigate('/blogs', e)} />
+                        <NavLink label="Research" active={pathname === '/research'} onClick={(e) => floodNavigate('/research', e)} />
                         <MoreButton />
 
                         {/* Separator */}
@@ -694,6 +695,7 @@ function MobileNav({ theme, setTheme, audioMuted, toggleAudio }) {
         { label: 'About', route: '/about', icon: '◎' },
         { label: 'Work', route: '/work', icon: '▣' },
         { label: 'Blogs', route: '/blogs', icon: '✦' },
+        { label: 'Research', route: '/research', icon: '◇' },
         { label: 'Labs', route: '/labs', icon: '⬡' },
         { label: 'Links', route: '/links', icon: '⬢' },
     ];
@@ -730,7 +732,7 @@ function MobileNav({ theme, setTheme, audioMuted, toggleAudio }) {
         <>
             {/* Mobile top bar */}
             <div
-                className="sm:hidden flex items-center justify-between"
+                className="lg:hidden flex items-center justify-between"
                 style={{
                     position: 'fixed', top: 0, left: 0, right: 0,
                     zIndex: 210,
@@ -819,7 +821,7 @@ function MobileNav({ theme, setTheme, audioMuted, toggleAudio }) {
             <AnimatePresence>
                 {open && (
                     <motion.div
-                        className="mobile-nav-overlay sm:hidden"
+                        className="mobile-nav-overlay lg:hidden"
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
