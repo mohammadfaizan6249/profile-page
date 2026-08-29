@@ -161,6 +161,9 @@ const blogDetailStyles = `
   .blog-tag-design   { background: rgba(249,115,22,0.1);  color: #f97316; border: 1px solid rgba(249,115,22,0.2);  }
   .blog-tag-career   { background: rgba(167,139,250,0.1); color: #a78bfa; border: 1px solid rgba(167,139,250,0.2); }
   .blog-tag-startup  { background: rgba(250,204,21,0.1);  color: #facc15; border: 1px solid rgba(250,204,21,0.2);  }
+  .blog-tag-nlp      { background: rgba(45,212,191,0.1); color: #2dd4bf; border: 1px solid rgba(45,212,191,0.2); }
+  .blog-tag-deep-learning { background: rgba(232,121,249,0.1); color: #e879f9; border: 1px solid rgba(232,121,249,0.2); }
+  .blog-tag-computer-vision { background: rgba(251,113,133,0.1); color: #fb7185; border: 1px solid rgba(251,113,133,0.2); }
   .blog-tag-default  { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.1); }
 
   /* ── Back button ── */
@@ -288,7 +291,16 @@ const InstagramIcon = () => (
 
 /* ─── Tag CSS class helper ──────────────────────────────────────── */
 function tagClass(tag) {
-  const map = { AI: 'ai', Engineering: 'engineering', Design: 'design', Career: 'career', Startup: 'startup' };
+  const map = {
+    AI: 'ai',
+    Engineering: 'engineering',
+    Design: 'design',
+    Career: 'career',
+    Startup: 'startup',
+    NLP: 'nlp',
+    'Deep Learning': 'deep-learning',
+    'Computer Vision': 'computer-vision',
+  };
   return `blog-tag-${map[tag] ?? 'default'}`;
 }
 

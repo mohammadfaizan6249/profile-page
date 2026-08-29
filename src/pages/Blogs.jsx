@@ -12,6 +12,9 @@ const TAG_COLORS = {
     Design:      { bg: 'rgba(249,115,22,0.08)',  color: '#f97316', border: 'rgba(249,115,22,0.2)'  },
     Career:      { bg: 'rgba(167,139,250,0.08)', color: '#a78bfa', border: 'rgba(167,139,250,0.2)' },
     Startup:     { bg: 'rgba(250,204,21,0.08)',  color: '#facc15', border: 'rgba(250,204,21,0.2)'  },
+    NLP:          { bg: 'rgba(45,212,191,0.08)',  color: '#2dd4bf', border: 'rgba(45,212,191,0.2)'  },
+    'Deep Learning': { bg: 'rgba(232,121,249,0.08)', color: '#e879f9', border: 'rgba(232,121,249,0.2)' },
+    'Computer Vision': { bg: 'rgba(251,113,133,0.08)', color: '#fb7185', border: 'rgba(251,113,133,0.2)' },
 };
 const defaultTag = { bg: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.4)', border: 'rgba(255,255,255,0.08)' };
 
